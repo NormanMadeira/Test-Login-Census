@@ -20,14 +20,12 @@ const adminLoginPage = document.getElementById("admin-login-page");
 
 // User Login Button
 document.getElementById("user-login-btn").addEventListener("click", () => {
-  console.log("User Login button clicked");
   homepage.style.display = "none";
   userLoginPage.style.display = "block";
 });
 
 // Admin Login Button
 document.getElementById("admin-login-btn").addEventListener("click", () => {
-  console.log("Admin Login button clicked");
   homepage.style.display = "none";
   adminLoginPage.style.display = "block";
 });

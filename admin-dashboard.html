@@ -4,31 +4,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard</title>
-  <!-- Favicon -->
-  <link rel="icon" href="images/Saint-Gonsalo-Garcia.jpg" type="image/x-icon">
   <link rel="stylesheet" href="styles.css">
+  <script type="module" src="admin-dashboard.js"></script>
 </head>
 <body>
-  <h1>Welcome to the Admin Dashboard</h1>
-  <p>You have successfully logged in as an admin.</p>
+  <h1>Admin Dashboard</h1>
+  <div>
+    <h2>Add New Email</h2>
+    <input type="email" id="new-email" placeholder="Enter email">
+    <select id="role-select">
+      <option value="admin">Admin</option>
+      <option value="editor">Editor</option>
+      <option value="viewer">Viewer</option>
+    </select>
+    <button id="add-email-button">Add Email</button>
+    <p id="add-error" style="color: red;"></p>
+  </div>
+
+  <div>
+    <h2>Authorized Emails</h2>
+    <ul id="email-list"></ul>
+  </div>
+
   <button id="logout-btn">Logout</button>
-
-  <script type="module">
-    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
-
-    const auth = getAuth();
-
-    // Logout button
-    document.getElementById("logout-btn").addEventListener("click", () => {
-      signOut(auth)
-        .then(() => {
-          alert("Logged out successfully!");
-          window.location.href = "index.html"; // Redirect to homepage
-        })
-        .catch((error) => {
-          alert("Error: " + error.message);
-        });
-    });
-  </script>
 </body>
 </html>
