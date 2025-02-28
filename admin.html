@@ -55,21 +55,27 @@
     };
 
     // Load authorized emails
-    function loadEmails() {
-      getDocs(collection(db, "authorizedEmails")).then((querySnapshot) => {
-        emailList.innerHTML = "";
-        querySnapshot.forEach((doc) => {
-          const email = doc.id;
-          const li = document.createElement("li");
-          li.textContent = email;
-          const removeBtn = document.createElement("button");
-          removeBtn.textContent = "Remove";
-          removeBtn.onclick = () => removeEmail(email);
-          li.appendChild(removeBtn);
-          emailList.appendChild(li);
-        });
-      });
-    }
+	function loadEmails() {
+	  getDocs(collection(db, "authorizedEmails"))
+		.then((querySnapshot) => {
+		  console.log("Fetched emails from Firestore:", querySnapshot.docs); // Debugging log
+		  emailList.innerHTML = ""; // Clear the list
+		  querySnapshot.forEach((doc) => {
+			const email = doc.id;
+			console.log("Email found:", email); // Debugging log
+			const li = document.createElement("li");
+			li.textContent = email;
+			const removeBtn = document.createElement("button");
+			removeBtn.textContent = "Remove";
+			removeBtn.onclick = () => removeEmail(email);
+			li.appendChild(removeBtn);
+			emailList.appendChild(li);
+		  });
+		})
+		.catch((error) => {
+		  console.error("Error loading emails:", error); // Debugging log
+		});
+	}
 
     // Add email
     function addEmail() {
