@@ -1,12 +1,13 @@
-<!DOCTYPE html>
-<html>
 <head>
   <title>Admin - Manage Authorized Emails</title>
+  <!-- Favicon -->
+  <link rel="icon" href="https://images.squarespace-cdn.com/content/v1/524883b7e4b03fcb7c64e24c/1685041480038-AWYM7XXSYNHG53PL43L6/Squarespace+Favicon.jpg?format=1500w" type="image/x-icon">
+
   <!-- Load Firebase SDKs as ES modules -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, deleteDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
     // Firebase configuration
     const firebaseConfig = {
@@ -46,12 +47,12 @@
     });
 
     // Google login
-    function loginWithGoogle() {
+    window.loginWithGoogle = function () {
       const provider = new GoogleAuthProvider();
       signInWithPopup(auth, provider).catch((error) => {
         console.error("Google login error:", error);
       });
-    }
+    };
 
     // Load authorized emails
     function loadEmails() {
@@ -113,7 +114,18 @@
 
   <div id="login-prompt">
     <p>Please log in with Google to manage authorized emails.</p>
-    <button onclick="loginWithGoogle()">Login with Google</button>
+    <button id="google-login-button">Login with Google</button>
   </div>
+
+  <script>
+    // Add event listener for the Google login button
+    document.getElementById("google-login-button").addEventListener("click", () => {
+      if (typeof loginWithGoogle === "function") {
+        loginWithGoogle();
+      } else {
+        console.error("loginWithGoogle is not defined.");
+      }
+    });
+  </script>
 </body>
 </html>
