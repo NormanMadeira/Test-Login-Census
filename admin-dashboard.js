@@ -62,29 +62,39 @@ window.loadEmails = function () {
     });
 };
 
-// Add email
+// Add email and create user with temporary password
 window.addEmail = function () {
   const newEmail = document.getElementById("new-email").value.trim();
   const role = document.getElementById("role-select").value;
+  const tempPassword = "TempPassword123!"; // Replace with a secure temporary password
 
   if (!newEmail) {
     addError.textContent = "Enter a valid email.";
     return;
   }
 
-  const createdAt = new Date().toISOString();
+  // Create user in Firebase Authentication
+  createUserWithEmailAndPassword(auth, newEmail, tempPassword)
+    .then((userCredential) => {
+      const user = userCredential.user;
 
-  setDoc(doc(db, "authorizedEmails", newEmail), {
-    email: newEmail,
-    role: role,
-    createdAt: createdAt
-  })
-    .then(() => {
-      document.getElementById("new-email").value = "";
-      loadEmails();
+      // Store user metadata in Firestore
+      setDoc(doc(db, "users", user.uid), {
+        email: newEmail,
+        role: role,
+        requiresPasswordUpdate: true, // Flag to force password update
+        createdAt: new Date().toISOString()
+      })
+        .then(() => {
+          document.getElementById("new-email").value = "";
+          loadEmails();
+        })
+        .catch((error) => {
+          addError.textContent = "Error storing user data: " + error.message;
+        });
     })
     .catch((error) => {
-      addError.textContent = "Error: " + error.message;
+      addError.textContent = "Error creating user: " + error.message;
     });
 };
 

@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDNEyQ9rAzMzmMKJJI50XFqvYSOPfsgsrU",
@@ -80,6 +80,50 @@ document.getElementById("forgot-password-btn").addEventListener("click", () => {
         alert("Error checking email: " + error.message);
       });
   }
+});
+
+// User Login Form
+document.getElementById("user-login-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+
+  // Fetch email associated with the username
+  getDoc(doc(db, "authorizedEmails", username))
+    .then((docSnap) => {
+      if (docSnap.exists()) {
+        const email = docSnap.data().email;
+
+        // Sign in with email and password
+        signInWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
+            const user = userCredential.user;
+
+            // Check if the user needs to update their password
+            getDoc(doc(db, "users", user.uid))
+              .then((userDoc) => {
+                if (userDoc.exists() && userDoc.data().requiresPasswordUpdate) {
+                  // Redirect to change password page
+                  window.location.href = "change-password.html";
+                } else {
+                  // Redirect to user dashboard
+                  window.location.href = "user-dashboard.html";
+                }
+              })
+              .catch((error) => {
+                console.error("Error checking password update flag:", error);
+              });
+          })
+          .catch((error) => {
+            alert("Error: " + error.message);
+          });
+      } else {
+        alert("Username not found.");
+      }
+    })
+    .catch((error) => {
+      alert("Error: " + error.message);
+    });
 });
 
 // Back to Home Button (User Login Page)
