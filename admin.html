@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html>
 <head>
   <title>Admin - Manage Authorized Emails</title>
   <!-- Favicon -->
@@ -34,6 +36,9 @@
     const emailList = document.getElementById("email-list");
     const addError = document.getElementById("add-error");
 
+    // Store the current user's role
+    let currentUserRole = null;
+
     // Auth state listener
     auth.onAuthStateChanged((user) => {
       if (user && adminEmails.includes(user.email)) {
@@ -55,36 +60,56 @@
     };
 
     // Load authorized emails
-	function loadEmails() {
-	  getDocs(collection(db, "authorizedEmails"))
-		.then((querySnapshot) => {
-		  console.log("Fetched emails from Firestore:", querySnapshot.docs); // Debugging log
-		  emailList.innerHTML = ""; // Clear the list
-		  querySnapshot.forEach((doc) => {
-			const email = doc.id;
-			console.log("Email found:", email); // Debugging log
-			const li = document.createElement("li");
-			li.textContent = email;
-			const removeBtn = document.createElement("button");
-			removeBtn.textContent = "Remove";
-			removeBtn.onclick = () => removeEmail(email);
-			li.appendChild(removeBtn);
-			emailList.appendChild(li);
-		  });
-		})
-		.catch((error) => {
-		  console.error("Error loading emails:", error); // Debugging log
-		});
-	}
+    window.loadEmails = function () {
+      getDocs(collection(db, "authorizedEmails")).then((querySnapshot) => {
+        emailList.innerHTML = ""; // Clear the list
+        querySnapshot.forEach((doc) => {
+          const data = doc.data(); // Get document data
+          const email = data.email;
+          const role = data.role;
+          const createdAt = data.createdAt;
+
+          console.log("Email found:", email, "Role:", role, "Created At:", createdAt); // Debugging log
+
+          // Create list item with email, role, and timestamp
+          const li = document.createElement("li");
+          li.textContent = `${email} (Role: ${role}, Created: ${new Date(createdAt).toLocaleString()})`;
+
+          // Add remove button (only for admins)
+          if (currentUserRole === "admin") {
+            const removeBtn = document.createElement("button");
+            removeBtn.textContent = "Remove";
+            removeBtn.onclick = () => removeEmail(email);
+            li.appendChild(removeBtn);
+          }
+
+          // Add list item to the list
+          emailList.appendChild(li);
+        });
+      }).catch((error) => {
+        console.error("Error loading emails:", error); // Debugging log
+      });
+    };
 
     // Add email
-    function addEmail() {
+    window.addEmail = function () {
       const newEmail = document.getElementById("new-email").value.trim();
+      const role = document.getElementById("role-select").value; // Get selected role
+
       if (!newEmail) {
         addError.textContent = "Enter a valid email.";
         return;
       }
-      setDoc(doc(db, "authorizedEmails", newEmail), {})
+
+      // Additional fields
+      const createdAt = new Date().toISOString(); // Current timestamp
+
+      // Create document with additional fields
+      setDoc(doc(db, "authorizedEmails", newEmail), {
+        email: newEmail,
+        role: role,
+        createdAt: createdAt
+      })
         .then(() => {
           document.getElementById("new-email").value = "";
           loadEmails();
@@ -92,14 +117,19 @@
         .catch((error) => {
           addError.textContent = "Error: " + error.message;
         });
-    }
+    };
 
-    // Remove email
-    function removeEmail(email) {
+    // Remove email (only for admins)
+    window.removeEmail = function (email) {
+      if (currentUserRole !== "admin") {
+        alert("Only admins can remove emails.");
+        return;
+      }
+
       deleteDoc(doc(db, "authorizedEmails", email))
         .then(() => loadEmails())
         .catch((error) => console.error("Remove error:", error));
-    }
+    };
   </script>
 </head>
 <body>
@@ -108,7 +138,12 @@
     <div>
       <h2>Add New Email</h2>
       <input type="email" id="new-email" placeholder="Enter email">
-      <button onclick="addEmail()">Add Email</button>
+      <select id="role-select">
+        <option value="admin">Admin</option>
+        <option value="editor">Editor</option>
+        <option value="viewer">Viewer</option>
+      </select>
+      <button id="add-email-button">Add Email</button>
       <p id="add-error" style="color: red;"></p>
     </div>
 
@@ -130,6 +165,15 @@
         loginWithGoogle();
       } else {
         console.error("loginWithGoogle is not defined.");
+      }
+    });
+
+    // Add event listener for the Add Email button
+    document.getElementById("add-email-button").addEventListener("click", () => {
+      if (typeof addEmail === "function") {
+        addEmail();
+      } else {
+        console.error("addEmail is not defined.");
       }
     });
   </script>
