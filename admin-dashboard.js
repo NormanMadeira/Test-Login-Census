@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
 import { getFirestore, doc, setDoc, deleteDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -16,32 +16,50 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// Check if the user is logged in and is an admin
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    // User is not logged in, redirect to homepage
+    alert("Access denied. Please log in.");
+    window.location.href = "index.html";
+  } else {
+    // Check if the user is an admin
+    const adminEmails = ["normanmadeira@gmail.com"]; // Replace with your admin emails
+    if (!adminEmails.includes(user.email)) {
+      alert("Access denied. You are not an admin.");
+      window.location.href = "index.html";
+    }
+  }
+});
+
 const emailList = document.getElementById("email-list");
 const addError = document.getElementById("add-error");
 
 // Load authorized emails
 window.loadEmails = function () {
-  getDocs(collection(db, "authorizedEmails")).then((querySnapshot) => {
-    emailList.innerHTML = ""; // Clear the list
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
-      const email = data.email;
-      const role = data.role;
-      const createdAt = data.createdAt;
+  getDocs(collection(db, "authorizedEmails"))
+    .then((querySnapshot) => {
+      emailList.innerHTML = ""; // Clear the list
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const email = data.email;
+        const role = data.role;
+        const createdAt = data.createdAt;
 
-      const li = document.createElement("li");
-      li.textContent = `${email} (Role: ${role}, Created: ${new Date(createdAt).toLocaleString()})`;
+        const li = document.createElement("li");
+        li.textContent = `${email} (Role: ${role}, Created: ${new Date(createdAt).toLocaleString()})`;
 
-      const removeBtn = document.createElement("button");
-      removeBtn.textContent = "Remove";
-      removeBtn.onclick = () => removeEmail(email);
-      li.appendChild(removeBtn);
+        const removeBtn = document.createElement("button");
+        removeBtn.textContent = "Remove";
+        removeBtn.onclick = () => removeEmail(email);
+        li.appendChild(removeBtn);
 
-      emailList.appendChild(li);
+        emailList.appendChild(li);
+      });
+    })
+    .catch((error) => {
+      console.error("Error loading emails:", error);
     });
-  }).catch((error) => {
-    console.error("Error loading emails:", error);
-  });
 };
 
 // Add email

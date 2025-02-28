@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDNEyQ9rAzMzmMKJJI50XFqvYSOPfsgsrU",
@@ -13,6 +14,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
 const homepage = document.getElementById("homepage");
 const userLoginPage = document.getElementById("user-login-page");
@@ -37,12 +39,47 @@ document.getElementById("google-login-btn").addEventListener("click", () => {
     .then((result) => {
       console.log("Google login successful");
       alert("Login successful! Redirecting to admin dashboard...");
-      window.location.href = "admin-dashboard.html"; // Redirect to admin dashboard
+
+      // Close the popup
+      if (window.opener) {
+        window.opener.postMessage("login-success", "*");
+        window.close(); // Close the popup
+      }
+
+      // Redirect to the admin dashboard
+      window.location.href = "admin-dashboard.html";
     })
     .catch((error) => {
       console.error("Google login error:", error);
       alert("Error: " + error.message);
     });
+});
+
+// Forgot Password
+document.getElementById("forgot-password-btn").addEventListener("click", () => {
+  const email = prompt("Enter your email:");
+
+  if (email) {
+    // Check if the email exists in the database
+    getDoc(doc(db, "authorizedEmails", email))
+      .then((docSnap) => {
+        if (docSnap.exists()) {
+          // Email exists, send password reset email
+          sendPasswordResetEmail(auth, email)
+            .then(() => {
+              alert("Password reset email sent!");
+            })
+            .catch((error) => {
+              alert("Error: " + error.message);
+            });
+        } else {
+          alert("Email not found in the database.");
+        }
+      })
+      .catch((error) => {
+        alert("Error checking email: " + error.message);
+      });
+  }
 });
 
 // Back to Home Button (User Login Page)

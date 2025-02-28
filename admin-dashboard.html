@@ -8,24 +8,26 @@
   <script type="module" src="admin-dashboard.js"></script>
 </head>
 <body>
-  <h1>Admin Dashboard</h1>
-  <div>
-    <h2>Add New Email</h2>
-    <input type="email" id="new-email" placeholder="Enter email">
-    <select id="role-select">
-      <option value="admin">Admin</option>
-      <option value="editor">Editor</option>
-      <option value="viewer">Viewer</option>
-    </select>
-    <button id="add-email-button">Add Email</button>
-    <p id="add-error" style="color: red;"></p>
-  </div>
+  <div id="admin-dashboard">
+    <h1>Admin Dashboard</h1>
+    <div>
+      <h2>Add New Email</h2>
+      <input type="email" id="new-email" placeholder="Enter email">
+      <select id="role-select">
+        <option value="admin">Admin</option>
+        <option value="editor">Editor</option>
+        <option value="viewer">Viewer</option>
+      </select>
+      <button id="add-email-button">Add Email</button>
+      <p id="add-error" style="color: red;"></p>
+    </div>
 
-  <div>
-    <h2>Authorized Emails</h2>
-    <ul id="email-list"></ul>
-  </div>
+    <div>
+      <h2>Authorized Emails</h2>
+      <ul id="email-list"></ul>
+    </div>
 
-  <button id="logout-btn">Logout</button>
+    <button id="logout-btn">Logout</button>
+  </div>
 </body>
 </html>
