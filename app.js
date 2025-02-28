@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -16,84 +16,37 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// List of admin emails
+const adminEmails = ["normanmadeira@gmail.com"]; // Replace with your admin emails
+
+// DOM elements
 const homepage = document.getElementById("homepage");
-const userLoginPage = document.getElementById("user-login-page");
-const forgotPasswordPage = document.getElementById("forgot-password-page");
 const adminLoginPage = document.getElementById("admin-login-page");
 
-document.getElementById("user-login-btn").addEventListener("click", () => {
-  homepage.style.display = "none";
-  userLoginPage.style.display = "block";
-});
-
-document.getElementById("admin-login-btn").addEventListener("click", () => {
-  homepage.style.display = "none";
-  adminLoginPage.style.display = "block";
-});
-
-document.getElementById("back-to-home-btn").addEventListener("click", () => {
-  userLoginPage.style.display = "none";
-  homepage.style.display = "block";
-});
-
-document.getElementById("back-to-home-admin-btn").addEventListener("click", () => {
-  adminLoginPage.style.display = "none";
-  homepage.style.display = "block";
-});
-
-document.getElementById("forgot-password-btn").addEventListener("click", () => {
-  userLoginPage.style.display = "none";
-  forgotPasswordPage.style.display = "block";
-});
-
-document.getElementById("back-to-login-btn").addEventListener("click", () => {
-  forgotPasswordPage.style.display = "none";
-  userLoginPage.style.display = "block";
-});
-
-document.getElementById("user-login-form").addEventListener("submit", (e) => {
-  e.preventDefault();
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
-
-  // Fetch email associated with the username
-  getDoc(doc(db, "users", username)).then((docSnap) => {
-    if (docSnap.exists()) {
-      const email = docSnap.data().email;
-      signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          alert("Login successful!");
-          // Redirect to user dashboard
-        })
-        .catch((error) => {
-          alert("Error: " + error.message);
-        });
-    } else {
-      alert("Username not found.");
-    }
-  });
-});
-
-document.getElementById("forgot-password-form").addEventListener("submit", (e) => {
-  e.preventDefault();
-  const email = document.getElementById("email").value;
-  sendPasswordResetEmail(auth, email)
-    .then(() => {
-      alert("Password reset email sent!");
-    })
-    .catch((error) => {
-      alert("Error: " + error.message);
-    });
-});
-
+// Google login for admin
 document.getElementById("google-login-btn").addEventListener("click", () => {
   const provider = new GoogleAuthProvider();
   signInWithPopup(auth, provider)
     .then((result) => {
-      alert("Login successful!");
-      // Redirect to admin dashboard
+      const user = result.user;
+
+      // Check if the user is an admin
+      if (adminEmails.includes(user.email)) {
+        alert("Login successful! Redirecting to admin dashboard...");
+        // Redirect to admin dashboard
+        window.location.href = "admin-dashboard.html"; // Replace with your admin dashboard URL
+      } else {
+        alert("Access denied. You are not an admin.");
+        auth.signOut(); // Sign out the non-admin user
+      }
     })
     .catch((error) => {
       alert("Error: " + error.message);
     });
+});
+
+// Back to home button for admin login page
+document.getElementById("back-to-home-admin-btn").addEventListener("click", () => {
+  adminLoginPage.style.display = "none";
+  homepage.style.display = "block";
 });
