@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin - Manage Authorized Emails</title>
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js"></script>
+</head>
+<body>
+  <h1>Admin - Manage Authorized Emails</h1>
+  <div id="admin-content" style="display: none;">
+    <div>
+      <h2>Add New Email</h2>
+      <input type="email" id="new-email" placeholder="Enter email">
+      <button onclick="addEmail()">Add Email</button>
+      <p id="add-error" style="color: red;"></p>
+    </div>
+
+    <div>
+      <h2>Authorized Emails</h2>
+      <ul id="email-list"></ul>
+    </div>
+  </div>
+
+  <div id="login-prompt">
+    <p>Please log in with Google to manage authorized emails.</p>
+    <button onclick="loginWithGoogle()">Login with Google</button>
+  </div>
+
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+  apiKey: "AIzaSyDNEyQ9rAzMzmMKJJI50XFqvYSOPfsgsrU",
+  authDomain: "test-login-census.firebaseapp.com",
+  projectId: "test-login-census",
+  storageBucket: "test-login-census.firebasestorage.app",
+  messagingSenderId: "261189020043",
+  appId: "1:261189020043:web:e654a47e82d4d494d1678e",
+  measurementId: "G-02VX2EBF5E"
+};
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // ==================================================
+    // ADMIN EMAILS SECTION
+    // Add or remove admin emails here.
+    // You can have up to 3 admin emails.
+    const adminEmails = [
+      "admin1@example.com", // Add your first admin email
+      // "admin2@example.com", // Uncomment and add a second admin email
+      // "admin3@example.com", // Uncomment and add a third admin email
+    ];
+    // ==================================================
+
+    const adminContent = document.getElementById("admin-content");
+    const loginPrompt = document.getElementById("login-prompt");
+    const emailList = document.getElementById("email-list");
+    const addError = document.getElementById("add-error");
+
+    // Check if the user is an admin
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        if (adminEmails.includes(user.email)) {
+          // User is an admin, show the admin interface
+          loginPrompt.style.display = "none";
+          adminContent.style.display = "block";
+          loadEmails();
+        } else {
+          alert("You are not authorized to access this page.");
+          auth.signOut();
+        }
+      }
+    });
+
+    // Login with Google
+    function loginWithGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .catch((error) => {
+          console.error("Error during login: ", error);
+        });
+    }
+
+    // Load and display authorized emails
+    function loadEmails() {
+      db.collection("authorizedEmails").get()
+        .then((querySnapshot) => {
+          emailList.innerHTML = ""; // Clear the list
+          querySnapshot.forEach((doc) => {
+            const email = doc.id;
+            const li = document.createElement("li");
+            li.textContent = email;
+            const removeButton = document.createElement("button");
+            removeButton.textContent = "Remove";
+            removeButton.onclick = () => removeEmail(email);
+            li.appendChild(removeButton);
+            emailList.appendChild(li);
+          });
+        })
+        .catch((error) => {
+          console.error("Error loading emails: ", error);
+        });
+    }
+
+    // Add a new email to the authorized list
+    function addEmail() {
+      const newEmail = document.getElementById("new-email").value.trim();
+      if (!newEmail) {
+        addError.textContent = "Please enter a valid email.";
+        return;
+      }
+
+      db.collection("authorizedEmails").doc(newEmail).set({})
+        .then(() => {
+          addError.textContent = "";
+          document.getElementById("new-email").value = ""; // Clear the input
+          loadEmails(); // Refresh the list
+        })
+        .catch((error) => {
+          addError.textContent = "Error adding email: " + error.message;
+        });
+    }
+
+    // Remove an email from the authorized list
+    function removeEmail(email) {
+      db.collection("authorizedEmails").doc(email).delete()
+        .then(() => {
+          loadEmails(); // Refresh the list
+        })
+        .catch((error) => {
+          console.error("Error removing email: ", error);
+        });
+    }
+  </script>
+</body>
+</html>
