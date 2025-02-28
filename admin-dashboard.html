@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard</title>
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="styles.css">
   <script type="module" src="admin-dashboard.js"></script>
 </head>
@@ -12,14 +11,15 @@
   <div id="admin-dashboard">
     <h1>Admin Dashboard</h1>
     <div>
-      <h2>Add New Email</h2>
-      <input type="email" id="new-email" placeholder="Enter email">
+      <h2>Add New User</h2>
+      <input type="email" id="new-email" placeholder="Enter email" required>
+      <input type="password" id="temp-password" placeholder="Temporary Password" required>
       <select id="role-select">
         <option value="admin">Admin</option>
         <option value="editor">Editor</option>
         <option value="viewer">Viewer</option>
       </select>
-      <button id="add-email-button">Add Email</button>
+      <button id="add-email-button">Add User</button>
       <p id="add-error" style="color: red;"></p>
     </div>
 

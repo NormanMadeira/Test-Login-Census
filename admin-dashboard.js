@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+import { getAuth, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
 import { getFirestore, doc, setDoc, deleteDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -65,15 +65,15 @@ window.loadEmails = function () {
 // Add email and create user with temporary password
 window.addEmail = function () {
   const newEmail = document.getElementById("new-email").value.trim();
+  const tempPassword = document.getElementById("temp-password").value.trim();
   const role = document.getElementById("role-select").value;
-  const tempPassword = "TempPassword123!"; // Replace with a secure temporary password
 
-  if (!newEmail) {
-    addError.textContent = "Enter a valid email.";
+  if (!newEmail || !tempPassword) {
+    addError.textContent = "Enter a valid email and temporary password.";
     return;
   }
 
-  // Create user in Firebase Authentication
+  // Create user with email and temporary password
   createUserWithEmailAndPassword(auth, newEmail, tempPassword)
     .then((userCredential) => {
       const user = userCredential.user;
@@ -82,11 +82,12 @@ window.addEmail = function () {
       setDoc(doc(db, "users", user.uid), {
         email: newEmail,
         role: role,
-        requiresPasswordUpdate: true, // Flag to force password update
+        requiresPasswordUpdate: true, // Flag to force password change
         createdAt: new Date().toISOString()
       })
         .then(() => {
           document.getElementById("new-email").value = "";
+          document.getElementById("temp-password").value = "";
           loadEmails();
         })
         .catch((error) => {

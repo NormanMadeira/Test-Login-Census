@@ -8,7 +8,7 @@ body {
   margin: 0;
 }
 
-#homepage, #user-login-page, #admin-login-page, #admin-dashboard {
+#homepage, #user-login-page, #admin-login-page, #admin-dashboard, .container {
   background-color: #fff;
   padding: 20px;
   border-radius: 8px;

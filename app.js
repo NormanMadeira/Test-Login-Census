@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDNEyQ9rAzMzmMKJJI50XFqvYSOPfsgsrU",
@@ -60,11 +60,11 @@ document.getElementById("forgot-password-btn").addEventListener("click", () => {
   const email = prompt("Enter your email:");
 
   if (email) {
-    // Check if the email exists in the database
+    // Check if the email exists in Firestore
     getDoc(doc(db, "authorizedEmails", email))
       .then((docSnap) => {
         if (docSnap.exists()) {
-          // Email exists, send password reset email
+          // Email exists: Send password reset email
           sendPasswordResetEmail(auth, email)
             .then(() => {
               alert("Password reset email sent!");
@@ -99,19 +99,14 @@ document.getElementById("user-login-form").addEventListener("submit", (e) => {
           .then((userCredential) => {
             const user = userCredential.user;
 
-            // Check if the user needs to update their password
+            // Check if password update is required
             getDoc(doc(db, "users", user.uid))
               .then((userDoc) => {
-                if (userDoc.exists() && userDoc.data().requiresPasswordUpdate) {
-                  // Redirect to change password page
-                  window.location.href = "change-password.html";
+                if (userDoc.data().requiresPasswordUpdate) {
+                  window.location.href = "change-password.html"; // Redirect
                 } else {
-                  // Redirect to user dashboard
-                  window.location.href = "user-dashboard.html";
+                  window.location.href = "user-dashboard.html"; // Proceed
                 }
-              })
-              .catch((error) => {
-                console.error("Error checking password update flag:", error);
               });
           })
           .catch((error) => {
@@ -120,9 +115,6 @@ document.getElementById("user-login-form").addEventListener("submit", (e) => {
       } else {
         alert("Username not found.");
       }
-    })
-    .catch((error) => {
-      alert("Error: " + error.message);
     });
 });
 
