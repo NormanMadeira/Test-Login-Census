@@ -1,6 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDNEyQ9rAzMzmMKJJI50XFqvYSOPfsgsrU",
@@ -14,38 +13,47 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
 
-// List of admin emails
-const adminEmails = ["normanmadeira@gmail.com"]; // Replace with your admin emails
-
-// DOM elements
 const homepage = document.getElementById("homepage");
+const userLoginPage = document.getElementById("user-login-page");
 const adminLoginPage = document.getElementById("admin-login-page");
 
-// Google login for admin
+// User Login Button
+document.getElementById("user-login-btn").addEventListener("click", () => {
+  console.log("User Login button clicked");
+  homepage.style.display = "none";
+  userLoginPage.style.display = "block";
+});
+
+// Admin Login Button
+document.getElementById("admin-login-btn").addEventListener("click", () => {
+  console.log("Admin Login button clicked");
+  homepage.style.display = "none";
+  adminLoginPage.style.display = "block";
+});
+
+// Google Login for Admin
 document.getElementById("google-login-btn").addEventListener("click", () => {
   const provider = new GoogleAuthProvider();
   signInWithPopup(auth, provider)
     .then((result) => {
-      const user = result.user;
-
-      // Check if the user is an admin
-      if (adminEmails.includes(user.email)) {
-        alert("Login successful! Redirecting to admin dashboard...");
-        // Redirect to admin dashboard
-        window.location.href = "admin-dashboard.html"; // Replace with your admin dashboard URL
-      } else {
-        alert("Access denied. You are not an admin.");
-        auth.signOut(); // Sign out the non-admin user
-      }
+      console.log("Google login successful");
+      alert("Login successful! Redirecting to admin dashboard...");
+      window.location.href = "admin-dashboard.html"; // Redirect to admin dashboard
     })
     .catch((error) => {
+      console.error("Google login error:", error);
       alert("Error: " + error.message);
     });
 });
 
-// Back to home button for admin login page
+// Back to Home Button (User Login Page)
+document.getElementById("back-to-home-btn").addEventListener("click", () => {
+  userLoginPage.style.display = "none";
+  homepage.style.display = "block";
+});
+
+// Back to Home Button (Admin Login Page)
 document.getElementById("back-to-home-admin-btn").addEventListener("click", () => {
   adminLoginPage.style.display = "none";
   homepage.style.display = "block";
