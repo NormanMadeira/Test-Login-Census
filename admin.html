@@ -2,9 +2,27 @@
 <html>
 <head>
   <title>Admin - Manage Authorized Emails</title>
+  <!-- Add Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js"></script>
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDNEyQ9rAzMzmMKJJI50XFqvYSOPfsgsrU",
+      authDomain: "test-login-census.firebaseapp.com",
+      projectId: "test-login-census",
+      storageBucket: "test-login-census.firebasestorage.app",
+      messagingSenderId: "261189020043",
+      appId: "1:261189020043:web:e654a47e82d4d494d1678e",
+      measurementId: "G-02VX2EBF5E"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+  </script>
 </head>
 <body>
   <h1>Admin - Manage Authorized Emails</h1>
@@ -28,20 +46,6 @@
   </div>
 
   <script>
-    // Firebase configuration
-    const firebaseConfig = {
-  apiKey: "AIzaSyDNEyQ9rAzMzmMKJJI50XFqvYSOPfsgsrU",
-  authDomain: "test-login-census.firebaseapp.com",
-  projectId: "test-login-census",
-  storageBucket: "test-login-census.firebasestorage.app",
-  messagingSenderId: "261189020043",
-  appId: "1:261189020043:web:e654a47e82d4d494d1678e",
-  measurementId: "G-02VX2EBF5E"
-};
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
     // ==================================================
     // ADMIN EMAILS SECTION
     // Add or remove admin emails here.

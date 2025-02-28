@@ -2,9 +2,27 @@
 <html>
 <head>
   <title>Login</title>
+  <!-- Add Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js"></script>
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDNEyQ9rAzMzmMKJJI50XFqvYSOPfsgsrU",
+      authDomain: "test-login-census.firebaseapp.com",
+      projectId: "test-login-census",
+      storageBucket: "test-login-census.firebasestorage.app",
+      messagingSenderId: "261189020043",
+      appId: "1:261189020043:web:e654a47e82d4d494d1678e",
+      measurementId: "G-02VX2EBF5E"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+  </script>
 </head>
 <body>
   <h1>Login</h1>
@@ -16,20 +34,6 @@
   <p id="error-message" style="color: red;"></p>
 
   <script>
-    // Firebase configuration
-    const firebaseConfig = {
-  apiKey: "AIzaSyDNEyQ9rAzMzmMKJJI50XFqvYSOPfsgsrU",
-  authDomain: "test-login-census.firebaseapp.com",
-  projectId: "test-login-census",
-  storageBucket: "test-login-census.firebasestorage.app",
-  messagingSenderId: "261189020043",
-  appId: "1:261189020043:web:e654a47e82d4d494d1678e",
-  measurementId: "G-02VX2EBF5E"
-};
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
     const loginForm = document.getElementById("login-form");
     const errorMessage = document.getElementById("error-message");
 
