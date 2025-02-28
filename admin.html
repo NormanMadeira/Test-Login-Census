@@ -2,13 +2,13 @@
 <html>
 <head>
   <title>Admin - Manage Authorized Emails</title>
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js"></script>
+  <!-- Load Firebase SDKs as ES modules -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
-  <!-- Firebase Initialization -->
-  <script>
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDNEyQ9rAzMzmMKJJI50XFqvYSOPfsgsrU",
       authDomain: "test-login-census.firebaseapp.com",
@@ -20,33 +20,10 @@
     };
 
     // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-  </script>
-</head>
-<body>
-  <h1>Admin - Manage Authorized Emails</h1>
-  <div id="admin-content" style="display: none;">
-    <div>
-      <h2>Add New Email</h2>
-      <input type="email" id="new-email" placeholder="Enter email">
-      <button onclick="addEmail()">Add Email</button>
-      <p id="add-error" style="color: red;"></p>
-    </div>
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    <div>
-      <h2>Authorized Emails</h2>
-      <ul id="email-list"></ul>
-    </div>
-  </div>
-
-  <div id="login-prompt">
-    <p>Please log in with Google to manage authorized emails.</p>
-    <button onclick="loginWithGoogle()">Login with Google</button>
-  </div>
-
-  <script>
     // Admin emails (replace with your actual admin emails)
     const adminEmails = ["normanmadeira@gmail.com"];
 
@@ -70,15 +47,15 @@
 
     // Google login
     function loginWithGoogle() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider).catch((error) => {
+      const provider = new GoogleAuthProvider();
+      signInWithPopup(auth, provider).catch((error) => {
         console.error("Google login error:", error);
       });
     }
 
     // Load authorized emails
     function loadEmails() {
-      db.collection("authorizedEmails").get().then((querySnapshot) => {
+      getDocs(collection(db, "authorizedEmails")).then((querySnapshot) => {
         emailList.innerHTML = "";
         querySnapshot.forEach((doc) => {
           const email = doc.id;
@@ -100,7 +77,7 @@
         addError.textContent = "Enter a valid email.";
         return;
       }
-      db.collection("authorizedEmails").doc(newEmail).set({})
+      setDoc(doc(db, "authorizedEmails", newEmail), {})
         .then(() => {
           document.getElementById("new-email").value = "";
           loadEmails();
@@ -112,10 +89,31 @@
 
     // Remove email
     function removeEmail(email) {
-      db.collection("authorizedEmails").doc(email).delete()
+      deleteDoc(doc(db, "authorizedEmails", email))
         .then(() => loadEmails())
         .catch((error) => console.error("Remove error:", error));
     }
   </script>
+</head>
+<body>
+  <h1>Admin - Manage Authorized Emails</h1>
+  <div id="admin-content" style="display: none;">
+    <div>
+      <h2>Add New Email</h2>
+      <input type="email" id="new-email" placeholder="Enter email">
+      <button onclick="addEmail()">Add Email</button>
+      <p id="add-error" style="color: red;"></p>
+    </div>
+
+    <div>
+      <h2>Authorized Emails</h2>
+      <ul id="email-list"></ul>
+    </div>
+  </div>
+
+  <div id="login-prompt">
+    <p>Please log in with Google to manage authorized emails.</p>
+    <button onclick="loginWithGoogle()">Login with Google</button>
+  </div>
 </body>
 </html>
